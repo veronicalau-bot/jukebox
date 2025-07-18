@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Video Jukebox</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Righteous&display=swap');
+        
+        body { 
+            font-family: 'Orbitron', monospace;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            overflow: hidden;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+        }
+        
+        .jukebox-body {
+            background: linear-gradient(145deg, #2c3e50, #34495e);
+            border: 6px solid #1a252f;
+            box-shadow: 
+                inset 0 0 30px rgba(0,0,0,0.5),
+                0 15px 30px rgba(0,0,0,0.3),
+                0 0 60px rgba(255,215,0,0.1);
+        }
+        
+        .chrome-trim {
+            background: linear-gradient(145deg, #c0c0c0, #808080);
+            border: 2px solid #a0a0a0;
+        }
+        
+        .neon-glow {
+            text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff;
+            animation: neonPulse 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes neonPulse {
+            from { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff; }
+            to { text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff; }
+        }
+        
+        .vinyl-record {
+            background: radial-gradient(circle, #1a1a1a 30%, #333 31%, #333 40%, #1a1a1a 41%);
+            animation: spin 3s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .selection-button {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a52);
+            border: 3px solid #c92a2a;
+            box-shadow: 
+                inset 0 2px 4px rgba(255,255,255,0.3),
+                0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+        
+        .selection-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                inset 0 2px 4px rgba(255,255,255,0.3),
+                0 6px 12px rgba(0,0,0,0.4);
+        }
+        
+        .selection-button:active {
+            transform: translateY(0);
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.3),
+                0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .selection-button.active {
+            background: linear-gradient(145deg, #ffd700, #ffed4e);
+            border-color: #f59e0b;
+            animation: buttonGlow 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes buttonGlow {
+            from { box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), 0 4px 8px rgba(255,215,0,0.5); }
+            to { box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), 0 4px 8px rgba(255,215,0,0.8); }
+        }
+        
+        .control-knob {
+            background: radial-gradient(circle at 30% 30%, #silver, #404040);
+            border: 3px solid #2c3e50;
+            position: relative;
+        }
+        
+        .control-knob::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            width: 2px;
+            height: 30%;
+            background: #fff;
+            transform: translateX(-50%);
+            border-radius: 1px;
+        }
+        
+        .screen-glow {
+            box-shadow: 
+                inset 0 0 20px rgba(0,255,255,0.2),
+                0 0 30px rgba(0,255,255,0.3);
+        }
+        
+        .coin-slot {
+            background: linear-gradient(90deg, #1a1a1a, #333, #1a1a1a);
+            border: 2px solid #666;
+        }
+        
+        .speaker-grill {
+            background: 
+                radial-gradient(circle at 50% 50%, transparent 1px, #333 1px, #333 2px, transparent 2px),
+                #1a1a1a;
+            background-size: 6px 6px;
+        }
+        
+        .coin-insert-animation {
+            animation: coinInsert 1.5s ease-in-out;
+        }
+        
+        @keyframes coinInsert {
+            0% { 
+                transform: translateX(-50%) translateY(-30px) rotateY(0deg); 
+                opacity: 1; 
+            }
+            20% { 
+                transform: translateX(-50%) translateY(-10px) rotateY(180deg); 
+                opacity: 1; 
+            }
+            40% { 
+                transform: translateX(-50%) translateY(10px) rotateY(360deg); 
+                opacity: 1; 
+            }
+            60% { 
+                transform: translateX(-50%) translateY(25px) rotateY(540deg); 
+                opacity: 1; 
+            }
+            80% { 
+                transform: translateX(-50%) translateY(35px) rotateY(720deg) scale(0.8); 
+                opacity: 0.7; 
+            }
+            100% { 
+                transform: translateX(-50%) translateY(45px) rotateY(720deg) scale(0.3); 
+                opacity: 0; 
+            }
+        }
+        
+        .slot-glow {
+            box-shadow: 
+                inset 0 0 10px rgba(255, 215, 0, 0.5),
+                0 0 20px rgba(255, 215, 0, 0.3);
+            animation: slotPulse 0.5s ease-out;
+        }
+        
+        @keyframes slotPulse {
+            0% { box-shadow: inset 0 0 5px rgba(255, 215, 0, 0.3), 0 0 10px rgba(255, 215, 0, 0.2); }
+            50% { box-shadow: inset 0 0 15px rgba(255, 215, 0, 0.7), 0 0 30px rgba(255, 215, 0, 0.5); }
+            100% { box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.3); }
+        }
+        
+        .selection-button:disabled {
+            background: linear-gradient(145deg, #666, #555);
+            border-color: #444;
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .selection-button:disabled:hover {
+            transform: none !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3), 0 2px 4px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 md:p-3">
+    <div class="jukebox-body rounded-2xl p-3 md:p-4 w-full min-h-screen md:h-full max-w-7xl mx-auto flex flex-col">
+        <!-- Jukebox Header -->
+        <div class="text-center mb-2 md:mb-3">
+            <div class="chrome-trim rounded-xl p-2 mb-2">
+                <h1 class="text-lg md:text-2xl font-black text-black" style="font-family: 'Righteous', cursive; text-shadow: 2px 2px 4px rgba(255,255,255,0.8);">
+                    🎵 JUKEBOX - Now Playing: Performing Arts & Sustainability 🎵
+                </h1>
+            </div>
+            <div id="coinSlotContainer" class="relative mx-auto w-40 h-12 flex items-center justify-center">
+
+                
+                <!-- Coin Slot -->
+                <button id="coinSlot" class="coin-slot w-28 h-6 mx-auto rounded-sm flex items-center justify-center cursor-pointer hover:bg-gray-600 transition-all duration-200 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-gray-800 via-black to-gray-800"></div>
+                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gray-600 via-gray-400 to-gray-600"></div>
+                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400"></div>
+                    <span class="text-yellow-400 text-xs font-bold relative z-10">INSERT COIN</span>
+                </button>
+                
+                <!-- Animated Coin -->
+                <div id="animatedCoin" class="absolute w-5 h-5 rounded-full hidden" style="top: -25px; left: 50%; transform: translateX(-50%); background: radial-gradient(circle at 30% 30%, #ffd700, #ffed4e, #daa520); border: 2px solid #b8860b; box-shadow: inset 0 2px 4px rgba(255,255,255,0.3), 0 2px 8px rgba(0,0,0,0.3);">
+                    <div class="absolute inset-1 rounded-full border border-yellow-300 opacity-50"></div>
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-yellow-800 text-xs font-bold">¢</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area - Responsive Layout -->
+        <div class="flex-1 flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
+            <!-- Selection Panel -->
+            <div class="w-full md:w-1/3 order-2 md:order-1">
+                <div class="chrome-trim rounded-xl p-3 h-full flex flex-col">
+                    <div class="text-center mb-3">
+                        <h2 class="text-base md:text-lg font-bold text-blue-800" style="font-family: 'Righteous', cursive;">MAKE YOUR SELECTION</h2>
+                        <div id="coinMessage" class="text-blue-800 text-xs mt-1">
+                            ✨ SELECT YOUR VIDEO ✨
+                        </div>
+                    </div>
+                    <div id="playlist" class="grid grid-cols-3 md:grid-cols-2 gap-2 flex-1">
+                        <!-- Selection buttons will be populated by JavaScript -->
+                    </div>
+                    
+                    <!-- Now Playing Display -->
+                    <div id="nowPlaying" class="hidden mt-3">
+                        <div class="bg-black rounded-lg p-2 border-2 border-cyan-400">
+                            <div class="text-center">
+                                <div class="text-cyan-400 text-xs font-bold mb-1">♪ NOW PLAYING ♪</div>
+                                <div id="currentTitle" class="text-yellow-400 font-bold text-sm"></div>
+                                <div id="currentDescription" class="text-cyan-300 text-xs mt-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Display Area -->
+            <div class="flex-1 flex flex-col order-1 md:order-2">
+                <div class="chrome-trim rounded-xl p-3 flex-1">
+                    <div id="videoPlayer" class="w-full h-full bg-black rounded-lg overflow-hidden relative screen-glow" style="min-height: 250px;">
+                        <div id="placeholderScreen" class="flex items-center justify-center h-full text-cyan-400">
+                            <div class="text-center">
+                                <div class="vinyl-record w-16 md:w-24 h-16 md:h-24 rounded-full mx-auto mb-4 flex items-center justify-center">
+                                    <div class="w-4 md:w-6 h-4 md:h-6 bg-yellow-400 rounded-full"></div>
+                                </div>
+                                <h3 class="text-lg md:text-xl font-bold neon-glow mb-3">SELECT A VIDEO TO PLAY</h3>
+                                <p class="text-cyan-300 text-sm md:text-base">Choose from the buttons below!</p>
+                            </div>
+                        </div>
+                        <!-- Mobile: Fixed height container with centered video -->
+                        <div id="youtubeContainer" class="w-full h-full hidden md:flex items-center justify-center">
+                            <iframe id="youtubePlayer" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                        <!-- Mobile: Aspect ratio container -->
+                        <div id="youtubeContainerMobile" class="w-full hidden md:hidden" style="height: 300px; display: flex; align-items: center; justify-content: center;">
+                            <div class="w-full" style="aspect-ratio: 16/9; max-height: 100%;">
+                                <iframe id="youtubePlayerMobile" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Control Panel -->
+                <div class="chrome-trim rounded-lg p-2 mt-2">
+                    <div class="flex items-center justify-center space-x-4 md:space-x-6">
+                        <button id="prevBtn" class="control-knob w-10 md:w-12 h-10 md:h-12 rounded-full text-white font-bold text-base md:text-lg disabled:opacity-50" disabled>
+                            ⏮
+                        </button>
+                        <button id="playPauseBtn" class="control-knob w-14 md:w-16 h-14 md:h-16 rounded-full text-white text-2xl md:text-3xl font-bold disabled:opacity-50" disabled>
+                            <span id="playIcon">●</span>
+                            <span id="pauseIcon" class="hidden">●</span>
+                        </button>
+                        <button id="nextBtn" class="control-knob w-10 md:w-12 h-10 md:h-12 rounded-full text-white font-bold text-base md:text-lg disabled:opacity-50" disabled>
+                            ⏭
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Decorative Elements -->
+        <div class="flex justify-between items-center mt-2 md:mt-3">
+            <div class="speaker-grill w-12 md:w-16 h-8 md:h-10 rounded-lg border-2 border-gray-600"></div>
+            <div class="flex space-x-2">
+                <div class="w-2 md:w-3 h-2 md:h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <div class="w-2 md:w-3 h-2 md:h-3 bg-yellow-500 rounded-full animate-pulse" style="animation-delay: 0.5s;"></div>
+                <div class="w-2 md:w-3 h-2 md:h-3 bg-green-500 rounded-full animate-pulse" style="animation-delay: 1s;"></div>
+            </div>
+            <div class="speaker-grill w-12 md:w-16 h-8 md:h-10 rounded-lg border-2 border-gray-600"></div>
+        </div>
+    </div>
+
+    <script>
+        // YouTube video data - replace with actual YouTube video IDs
+        const videos = [
+            {
+                id: 1,
+                title: "Performing Arts & Sustainability",
+                titleChinese: "表演藝術與可持續發展",
+                description: "AI Generated Podcast by Notebooklm",
+                code: "Part. 1",
+                youtubeId: "UhNZx7Qz2Es", // Performing Arts & Sustainability
+                isYoutube: true
+            },
+            {
+                id: 2,
+                title: "Performing Arts & Sustainability Roles",
+                titleChinese: "表演藝術在可持續發展中的角色",
+                description: "AI Generated Podcast by Notebooklm",
+                code: "Part. 2",
+                youtubeId: "zr5yKX8PHyY", // erforming Arts & Eco
+                isYoutube: true
+            },
+            {
+                id: 3,
+                title: "Performing Arts & Quality Education",
+                titleChinese: "表演藝術與優質教學",
+                description: "AI Generated Podcast by Notebooklm",
+                code: "Part. 3",
+                youtubeId: "Kz0Ghepzetg", // Performing Arts & Quality Education
+                isYoutube: true
+            },
+            {
+                id: 4,
+                title: "Green Production",
+                titleChinese: "綠色製作",
+                description: "AI Generated Podcast by Notebooklm",
+                code: "Part. 4",
+                youtubeId: "7fyOwEb-Ltg", // Green Production
+                isYoutube: true
+            },
+            {
+                id: 5,
+                title: "Performing Arts & Social Aspects",
+                titleChinese: "表演藝術與社會議題",
+                description: "AI Generated Podcast by Notebooklm",
+                code: "Part. 5",
+                youtubeId: "00pTYNhjCoA", // Performing Arts & Social Aspects
+                isYoutube: true
+            },
+        ];
+
+        let currentVideoIndex = -1;
+        let isPlaying = false;
+        let coinInserted = false;
+
+        // DOM elements
+        const youtubePlayer = document.getElementById('youtubePlayer');
+        const youtubePlayerMobile = document.getElementById('youtubePlayerMobile');
+        const placeholderScreen = document.getElementById('placeholderScreen');
+        const nowPlaying = document.getElementById('nowPlaying');
+        const currentTitle = document.getElementById('currentTitle');
+        const currentDescription = document.getElementById('currentDescription');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const playlist = document.getElementById('playlist');
+        const coinSlot = document.getElementById('coinSlot');
+        const coinMessage = document.getElementById('coinMessage');
+
+        // Initialize selection buttons
+        function initializePlaylist() {
+            playlist.innerHTML = '';
+            videos.forEach((video, index) => {
+                const button = document.createElement('button');
+                button.className = 'selection-button rounded-lg p-2 text-white font-bold text-xs transition-all duration-200';
+                button.disabled = false; // Start enabled
+                button.innerHTML = `
+                    <div class="text-base font-black mb-1">${video.code}</div>
+                    <div class="text-xs leading-tight">${video.title}</div>
+                    <div class="text-xs leading-tight">${video.titleChinese}</div>
+                `;
+                
+                button.addEventListener('click', () => {
+                    if (button.disabled) return;
+                    
+                    // Add button press effect
+                    button.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        button.style.transform = 'scale(1)';
+                        playVideo(index);
+                    }, 150);
+                });
+                
+                playlist.appendChild(button);
+            });
+        }
+
+        // Insert coin function
+        function insertCoin() {
+            if (coinInserted) return; // Prevent multiple coins
+            
+            const animatedCoin = document.getElementById('animatedCoin');
+            
+            // Show and animate the coin
+            animatedCoin.classList.remove('hidden');
+            animatedCoin.classList.add('coin-insert-animation');
+            
+            // Add slot glow effect
+            coinSlot.classList.add('slot-glow');
+            
+            // Play coin sound effect (visual feedback)
+            coinSlot.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                coinSlot.style.transform = 'scale(1)';
+            }, 100);
+            
+            // After coin animation completes
+            setTimeout(() => {
+                coinInserted = true;
+                
+                // Update coin message
+                coinMessage.textContent = '💰 COIN ACCEPTED - THANK YOU! 💰';
+                coinMessage.classList.remove('animate-pulse');
+                coinMessage.classList.remove('text-cyan-400');
+                coinMessage.classList.add('text-green-400');
+                
+                // Hide the coin and reset
+                animatedCoin.classList.add('hidden');
+                animatedCoin.classList.remove('coin-insert-animation');
+                coinSlot.classList.remove('slot-glow');
+                
+            }, 1500); // Match animation duration
+        }
+
+        // Keep buttons enabled after video selection (coin only needed once)
+        function disableButtons() {
+            // Don't disable buttons or reset coin status anymore
+            // Buttons stay enabled after first coin insertion
+        }
+
+
+
+        // Play specific YouTube video
+        function playVideo(index) {
+            if (index < 0 || index >= videos.length) return;
+            
+            currentVideoIndex = index;
+            const video = videos[index];
+            
+            // Hide placeholder
+            placeholderScreen.classList.add('hidden');
+            
+            // Set YouTube embed URL with autoplay
+            const embedUrl = `https://www.youtube.com/embed/${video.youtubeId}?autoplay=1&rel=0&modestbranding=1&enablejsapi=1`;
+            
+            // Check if mobile or desktop and show appropriate container
+            if (window.innerWidth < 768) {
+                // Mobile: Show mobile container with aspect ratio
+                document.getElementById('youtubeContainerMobile').classList.remove('hidden');
+                document.getElementById('youtubeContainerMobile').style.display = 'flex';
+                youtubePlayerMobile.src = embedUrl;
+            } else {
+                // Desktop: Show desktop container that fills available space
+                document.getElementById('youtubeContainer').classList.remove('hidden');
+                youtubePlayer.src = embedUrl;
+            }
+            
+            // Update now playing info
+            currentTitle.textContent = video.title;
+            currentDescription.textContent = video.description;
+            nowPlaying.classList.remove('hidden');
+            
+            // Update selection buttons state
+            updatePlaylistState();
+            
+            // Update controls
+            isPlaying = true;
+            updateControlsState();
+        }
+
+        // Update selection buttons visual state
+        function updatePlaylistState() {
+            const buttons = playlist.querySelectorAll('.selection-button');
+            buttons.forEach((button, index) => {
+                if (index === currentVideoIndex) {
+                    button.classList.add('active');
+                } else {
+                    button.classList.remove('active');
+                }
+            });
+        }
+
+        // Update controls state
+        function updateControlsState() {
+            playPauseBtn.disabled = currentVideoIndex === -1;
+            prevBtn.disabled = currentVideoIndex <= 0;
+            nextBtn.disabled = currentVideoIndex >= videos.length - 1;
+            
+            if (isPlaying) {
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+            } else {
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+            }
+        }
+
+        // Control button handlers - Note: YouTube iframe controls are limited
+        playPauseBtn.addEventListener('click', () => {
+            // YouTube iframe doesn't allow external play/pause control
+            // This is a visual indicator only
+            isPlaying = !isPlaying;
+            updateControlsState();
+        });
+
+        prevBtn.addEventListener('click', () => {
+            if (currentVideoIndex > 0) {
+                playVideo(currentVideoIndex - 1);
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentVideoIndex < videos.length - 1) {
+                playVideo(currentVideoIndex + 1);
+            }
+        });
+
+        // Coin slot click handler
+        coinSlot.addEventListener('click', () => {
+            if (!coinInserted) {
+                insertCoin();
+            }
+        });
+
+        // Initialize the jukebox
+        initializePlaylist();
+        updateControlsState();
+
+        // Add some retro startup effects
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const title = document.querySelector('h1');
+                title.style.animation = 'neonPulse 2s ease-in-out infinite alternate';
+            }, 1000);
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'960ffa3b70d88557',t:'MTc1MjgyMDcyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
